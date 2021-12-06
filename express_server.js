@@ -9,8 +9,14 @@ const urlDatabase = {
   '9sm5xK': 'http://www.google.ca'
 };
 
+function generateRandomString() {
+  const randomString = Math.random().toString(36).substring(2, 8);
+};
+
+
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
+
 
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -18,6 +24,7 @@ app.get('/', (req, res) => {
 
 app.post('/urls', (req, res) => {
   console.log(req.body) // Logs the POST request to body to the console
+  generateRandomString();
   res.send('Ok');      // Responds with 'Ok'
 });
 
