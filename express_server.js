@@ -62,6 +62,18 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.redirect('/urls')
 });
 
+// Update a URL
+app.post('/urls/:shortURL', (req, res) => {
+
+  // grab the id and the new long url
+  const shortURL = req.params.shortURL
+  const longURL = req.body.newURL
+  console.log(shortURL, longURL);
+  // update the database
+  urlDatabase[shortURL] = longURL;
+  // render page
+  res.redirect('/urls')
+});
 
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
