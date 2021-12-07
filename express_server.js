@@ -24,18 +24,28 @@ app.get('/', (req, res) => {
   res.send('Hello!');
 });
 
+// Post new URL from form page, into database
 app.post('/urls', (req, res) => {
-  console.log(req.body.longURL) // Logs the POST request to body to the console
+  // console.log(req.body.longURL) // Logs the POST request to body to the console
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
 
+// a redirect to the actual website
+app.get('/u/:shortURL', (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  // console.log(longURL);
+  res.redirect(longURL);
+});
+
+// Get urls for the url index page
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render('urls_index', templateVars);
 });
 
+// Get URL form page to add new URL
 app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
