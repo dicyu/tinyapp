@@ -25,12 +25,6 @@ app.get('/', (req, res) => {
   res.send('Hello!');
 });
 
-// Login post, username cookies
-app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username)
-  res.redirect('/urls')
-});
-
 // Post new URL from form page, into database
 app.post('/urls', (req, res) => {
   // console.log(req.body.longURL) // Logs the POST request to body to the console
@@ -48,17 +42,25 @@ app.get('/u/:shortURL', (req, res) => {
 
 // Get urls for the url page
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  let templateVars = { 
+    username: req.cookies["username"],
+    urls: urlDatabase
+  };
   res.render('urls_index', templateVars);
 });
 
 // Get URL form page to add new URL
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  let templateVars = { username: req.cookies["username"] };
+  res.render('urls_new', templateVars);
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }
+  let templateVars = { 
+    username: req.cookies['username'], 
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL]
+  }
   res.render('urls_show', templateVars);
 });
 
@@ -76,6 +78,12 @@ app.post('/urls/:shortURL', (req, res) => {
   console.log(shortURL, longURL);
   urlDatabase[shortURL] = longURL;
   res.redirect('/urls')
+});
+
+// Login post, username cookies
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username)
+  res.redirect('/urls');
 });
 
 app.get('/urls.json', (req, res) => {
