@@ -75,7 +75,6 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL
   const longURL = req.body.newURL
-  console.log(shortURL, longURL);
   urlDatabase[shortURL] = longURL;
   res.redirect('/urls')
 });
@@ -83,6 +82,12 @@ app.post('/urls/:shortURL', (req, res) => {
 // Login post, username cookies
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username)
+  res.redirect('/urls');
+});
+
+// Logout post and deleting cookies
+app.post('/logout', (req, res) => {
+  res.clearCookie('username', req.cookies['username']);
   res.redirect('/urls');
 });
 

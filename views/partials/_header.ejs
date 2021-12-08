@@ -16,11 +16,16 @@
       <form class="form-inline justify-content-center" action="/login" method="POST">
         <div class="form-group mb-2">
           <input class="form-control " type="text" name="username" placeholder="Username" style="width: 300px; margin: 1em">
-          <button type="submit" class="btn btn-primary">Submit</button>
+          <button type="submit" class="btn btn-primary">Login</button>
         </div>
       </form>
     <% } else { %>
-      <h5><div class="text-white">Logged in as: <%= username %></div></h5>
+      <form class="form-inline my-1" action="/logout" method="POST" style="margin: 1em">
+      <div class="text-white">
+        Logged in as: <%= username %>
+          <button type="submit" class="btn btn-danger ml-3">Logout</button>
+        </div>
+        </form>
       <% } %>
   </nav>
 </header>
