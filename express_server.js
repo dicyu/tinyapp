@@ -166,6 +166,12 @@ app.post('/register', (req, res) => {
   // console.log(users[newUserID]);
 });
 
+app.get('/login', (req, res) => {
+  let templateVars = {
+    user: users[req.cookies['user_id]']]
+  }
+  res.render('urls_login', templateVars)
+});
 
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
