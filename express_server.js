@@ -32,7 +32,20 @@ const users = {
 function generateRandomString() {
   const randomString = Math.random().toString(36).substring(2, 8);
   // console.log(randomString);
-  return randomString;  
+  return randomString;
+};
+
+function checkExistingEmail(newEmail) {
+  // console.log("Testing");
+  for (let email in users) {
+    let queryEmail = users[email]['email'];
+
+    if (newEmail === queryEmail) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 };
 
 /***
@@ -125,13 +138,32 @@ app.post('/register', (req, res) => {
   const newEmail = req.body.email;
   const newPass = req.body.password;
 
-  users[newUserID] = { id: newUserID, email: newEmail, password: newPass }
+  if (newEmail === "" && newPass === "") {
+    res.status(400);
+    res.send('Please enter an email and a password.');
+    // console.log(users);
+    } else if (newEmail === "") {
+      res.status(400);
+      res.send('Please enter a email.');
+      // console.log(users);
+    } else if (newPass === "") {
+      res.send('Please enter a password.');
+      // console.log(users);
+    }
+    
+    if (checkExistingEmail(newEmail) === true) {
+      res.status(400);
+      res.send('Email already exists')
+      // console.log(users);
+    } else {
+      res.cookie('user_id', newUserID);
+      res.redirect('/urls');
+      users[newUserID] = { id: newUserID, email: newEmail, password: newPass }
+      // console.log(users);
+    };
 
-  console.log(users);
+  // console.log(users);
   // console.log(users[newUserID]);
-
-  res.cookie('user_id', newUserID);
-  res.redirect('/urls');
 });
 
 
