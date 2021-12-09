@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 
 const PORT = 8080; // => Default Port : 8080
+const salt = bcrypt.genSaltSync(10);
 
 // Middleware
 app.set('view engine', 'ejs');
@@ -32,12 +33,12 @@ const users = {
   '34iibk': {
     id: '34iibk',
     email: 'user@example.com',
-    password: 'test1'
+    password: bcrypt.hashSync('test1', salt)
   },
   'buq4s7': {
     id: 'buq4s7',
     email: 'user2@example.com',
-    password: 'test2'
+    password: bcrypt.hashSync('test2', salt)
   }
 };
 
@@ -62,7 +63,7 @@ function checkExistingEmail(newEmail) {
 };
 
 function checkExistingPassword(user, password) {
-    if (user.password === password) {
+    if (bcrypt.compareSync(password, user.password)) {
       return true;
     } else {
       return false;
@@ -219,7 +220,7 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   const newUserID = generateRandomString();
   const newEmail = req.body.email;
-  const newPass = req.body.password;
+  const newPass = bcrypt.hashSync(req.body.password, salt);
 
   if (newEmail === "" && newPass === "") {
     res.status(400).send('Please enter an email and a password.');
@@ -255,8 +256,8 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  loginEmail = req.body.email
-  loginPass = req.body.password
+  const loginEmail = req.body.email
+  const loginPass = req.body.password
   const user = findUser(loginEmail);
 
   console.log(loginEmail)
@@ -275,8 +276,9 @@ app.post('/login', (req, res) => {
   }
   });
 
-app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
+// Looking at json for testing
+app.get('/users.json', (req, res) => {
+  res.json(users);
 });
 
 // app.get('/hello', (req, res) => {
