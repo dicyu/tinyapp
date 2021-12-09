@@ -10,6 +10,7 @@
 
 <body>
   <main style="margin: 1em;">
+
   <% if (!user) { %>
           <div class="alert alert-danger" role="alert">
             <h5 class="alert-heading">Well, looks like we have a issue here...</h5>
@@ -27,14 +28,11 @@
           </div>
   <% } else if (user.id !== urlUserID) { %>
     <div class="alert alert-warning" role="alert">
-      <h5 class="alert-heading">Well, looks like we have a issue here...</h5>
+      <h5 class="alert-heading">Well, looks like we have an issue here...</h5>
       <p>Looks like this link is not part of your tiny link library!</p>
     </div>
-  <% } %>
+  <% } else { %>
 
-<% if (user.id === urlUserID) { %>
-
-  
   <div class="card text-center">
     <div class="card-header"></div>
     <div class="card-body">
@@ -54,8 +52,8 @@
           
         </div>
       </form>
-      
     </div>
+
   <% } %>
   </main>
   
