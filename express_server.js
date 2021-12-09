@@ -145,14 +145,20 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  let templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    urlUserID: urlDatabase[req.params.shortURL].userID,
-    user: users[req.cookies['user_id']]
-  };
-  console.log(templateVars)
-  res.render('urls_show', templateVars);
+  if (urlDatabase[req.params.shortURL]) {
+
+    let templateVars = {
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      urlUserID: urlDatabase[req.params.shortURL].userID,
+      user: users[req.cookies['user_id']]
+    };
+    console.log(templateVars)
+    res.render('urls_show', templateVars);
+  } else {
+    res.status(404).send('The short URL you entered does not exist.')
+  }
+  
 });
 
 // Update a URL
@@ -176,7 +182,21 @@ app.post('/urls/:shortURL/delete', (req, res) => {
     delete urlDatabase[shortURL]
     res.redirect('/urls')
   } else {
-    res.status(400).send('Error.');
+    res.status(401).send('Error.');
+  }
+});
+
+// Check to see if user is logged in to be able to POST
+app.post('/urls/:id', (req, res) => {
+  const userID = req.cookies['user_id'];
+  const userURLs = urlsForUser(userID);
+  const shortURL = req.params.id;
+
+  if (Object.keys(userURLs).includes(shortURL)) {
+    urlDatabase[shortURL] = { longURL, userID }
+    res.redirect('/urls');
+  } else {
+    res.status(401).send('Error');
   }
 });
 
