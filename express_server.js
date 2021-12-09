@@ -108,12 +108,12 @@ app.post('/urls', (req, res) => {
 
 // a redirect to the actual website
 app.get('/u/:shortURL', (req, res) => {
+  if (urlDatabase[req.params.shortURL]) {
   const longURL = urlDatabase[req.params.shortURL].longURL;
   // console.log(longURL);
-  if (longURL) {
-    res.redirect(longURL);
-  } else {
-    console.log("working?")
+  res.redirect(longURL);
+} else {
+    res.status(404).send('Tiny URL ID does not exist.')
   }
 });
 
