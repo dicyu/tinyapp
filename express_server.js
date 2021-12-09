@@ -49,16 +49,12 @@ function checkExistingEmail(newEmail) {
   }
 };
 
-function checkExistingPassword(newPass) {
-  for (let pass in users) {
-    let queryPass = users[pass]["password"]
-
-    if (newPass === queryPass) {
+function checkExistingPassword(user, password) {
+    if (user.password === password) {
       return true;
     } else {
       return false;
     }
-  }
 };
 
 const findUser = email => {
@@ -76,10 +72,18 @@ app.get('/', (req, res) => {
 
 // Post new URL from form page, into database
 app.post('/urls', (req, res) => {
+  let templateVars = { 
+    user: users[req.cookies['user_id']]
+  }
   // console.log(req.body.longURL) // Logs the POST request to body to the console
-  let shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect(`/urls/${shortURL}`);
+
+  if (!templateVars.user) { // => if user isn't logged in
+    res.status(400).send('You need to be logged in or registered to see this page.');
+  } else {
+    let shortURL = generateRandomString();
+    urlDatabase[shortURL] = req.body.longURL;
+    res.redirect(`/urls/${shortURL}`);
+  }
 });
 
 // a redirect to the actual website
@@ -103,7 +107,13 @@ app.get('/urls/new', (req, res) => {
   let templateVars = { 
     user: users[req.cookies['user_id']] 
   };
-  res.render('urls_new', templateVars);
+
+  if (!templateVars.user) { // => if the user isn't logged in
+    res.redirect('/login');
+  } else {
+    res.render('urls_new', templateVars);
+  }
+
 });
 
 app.get('/urls/:shortURL', (req, res) => {
@@ -188,10 +198,10 @@ app.post('/login', (req, res) => {
   console.log(loginEmail)
   console.log(loginPass);
 
-  if (!checkExistingEmail(loginEmail)) {
+  if (!user) {
     res.status(403).send('Email not found.')
   } else {
-    if (!checkExistingPassword(loginPass)) {
+    if (!checkExistingPassword(user, loginPass)) {
       res.status(403).send('Password is wrong.')
     } else {
       console.log(users);
