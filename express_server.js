@@ -1,8 +1,10 @@
+// Dependencies
 const express = require('express');
 const app = express();
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser');
-const e = require('express');
+const bcrypt = require('bcryptjs');
+
 const PORT = 8080; // => Default Port : 8080
 
 // Middleware
@@ -158,7 +160,7 @@ app.get('/urls/:shortURL', (req, res) => {
   } else {
     res.status(404).send('The short URL you entered does not exist.')
   }
-  
+
 });
 
 // Update a URL
