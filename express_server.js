@@ -198,7 +198,7 @@ app.post('/register', (req, res) => {
       // console.log(users);
     }
     
-    if (checkExistingEmail(newEmail) === true) {
+    if (checkExistingEmail(newEmail, users) === true) {
       res.status(400).send('Email already exists')
       // console.log(users);
     } else {
