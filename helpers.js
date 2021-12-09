@@ -21,9 +21,8 @@ const checkExistingEmail = (newEmail, database) => {
 const checkExistingPassword = (key1, key2) => {
     if (bcrypt.compareSync(key1, key2)) {
       return true;
-    } else {
-      return false;
     }
+    return false;
 };
 
 const findUserIdFromEmail = (email, database) => {

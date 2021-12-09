@@ -4,6 +4,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const cookieSession = require('cookie-session');
+const methodOverride = require('method-override');
 
 // Global
 const PORT = 8080; // => Default Port : 8080
@@ -19,6 +20,7 @@ app.use(cookieSession({
     'b0b26882-ee4c-48b6-9ff0-6a33cc93cd88',
   ],
 }));
+app.use(methodOverride('_method'));
 
 // Functions
 const { 
@@ -220,11 +222,11 @@ app.post('/login', (req, res) => {
   if (!user) {
     res.status(403).send('Email not found.')
   } else {
-    if (!checkExistingPassword(loginPass, users[user].password)) {
-      res.status(403).send('Password is wrong.')
-    } else {
+    if (checkExistingPassword(loginPass, users[user].password)) {
       req.session['user_id'] = user;
       res.redirect('/urls')
+    } else {
+      res.status(403).send('Password is wrong.')
     }
   }
   });
