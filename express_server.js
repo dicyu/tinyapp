@@ -125,7 +125,6 @@ app.get('/urls/:shortURL', (req, res) => {
       urlUserID: urlDatabase[req.params.shortURL].userID,
       user: users[req.session['user_id']]
     };
-    console.log(templateVars)
     res.render('urls_show', templateVars);
   } else {
     res.status(404).send('The short URL you entered does not exist.')
@@ -134,7 +133,7 @@ app.get('/urls/:shortURL', (req, res) => {
 });
 
 // Update a URL
-app.post('/urls/:shortURL', (req, res) => {
+app.put('/urls/:shortURL', (req, res) => {
   const userID = req.session['user_id'];
   const shortURL = req.params.shortURL
   const longURL = req.body.newURL
@@ -144,13 +143,13 @@ app.post('/urls/:shortURL', (req, res) => {
 });
 
 // Delete a URL
-app.post('/urls/:shortURL/delete', (req, res) => {
+app.delete('/urls/:shortURL', (req, res) => {
   const userID = req.session['user_id'];
   const userURLs = urlsForUser(userID);
   const shortURL = req.params.shortURL
 
   // Check if user is logged in or not won't be able to delete
-  if (Object.keys(userURLs).includes(shortURL)) {
+  if (urlsForUser(userID, urlDatabase)[shortURL]) {
     delete urlDatabase[shortURL]
     res.redirect('/urls')
   } else {
@@ -214,10 +213,6 @@ app.post('/login', (req, res) => {
   const loginEmail = req.body.email
   const loginPass = req.body.password
   const user = findUserIdFromEmail(loginEmail, users);
-
-  console.log(loginEmail)
-  console.log(loginPass);
-  console.log(users[user].password)
 
   if (!user) {
     res.status(403).send('Email not found.')
