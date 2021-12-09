@@ -7,16 +7,15 @@ const generateRandomString = () => {
   return randomString;
 };
 
-const checkExistingEmail = (newEmail) => {
-  for (let email in users) {
-    let queryEmail = users[email]['email'];
+const checkExistingEmail = (newEmail, database) => {
+  for (let email in database) {
+    let queryEmail = database[email]['email'];
 
     if (newEmail === queryEmail) {
       return true;
-    } else {
-      return false;
     }
   }
+  return false;
 };
 
 const checkExistingPassword = (key1, key2) => {
