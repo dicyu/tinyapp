@@ -9,6 +9,7 @@ const cookieSession = require('cookie-session');
 const PORT = 8080; // => Default Port : 8080
 const salt = bcrypt.genSaltSync(10);
 
+
 // Middleware
 app.set('view engine', 'ejs');
 app.use(cookieParser());
@@ -18,8 +19,13 @@ app.use(cookieSession({
   keys: [
     'e549d7a4-9615-4e88-a07e-65a9b351308b',
     'b0b26882-ee4c-48b6-9ff0-6a33cc93cd88',
-],
+  ],
 }));
+
+// Functions
+const { 
+  generateRandomString, checkExistingEmail, checkExistingPassword, findUserIdFromEmail, urlsForUser 
+} = require('./helpers');
 
 // Database
 const urlDatabase = {
@@ -49,53 +55,6 @@ const users = {
     password: bcrypt.hashSync('test2', salt)
   }
 };
-
-// Helper Functions
-function generateRandomString() {
-  const randomString = Math.random().toString(36).substring(2, 8);
-  // console.log(randomString);
-  return randomString;
-};
-
-function checkExistingEmail(newEmail) {
-  // console.log("Testing");
-  for (let email in users) {
-    let queryEmail = users[email]['email'];
-
-    if (newEmail === queryEmail) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-};
-
-function checkExistingPassword(user, password) {
-    if (bcrypt.compareSync(password, user.password)) {
-      return true;
-    } else {
-      return false;
-    }
-};
-
-const findUser = email => {
-  return Object.values(users).find(user => user.email === email);
-}
-
-const urlsForUser = (id) => {
-  let userURLs = {};
-
-  for (const shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
-      userURLs[shortURL] = urlDatabase[shortURL];
-    }
-  }
-  return userURLs;
-};
-
-const addNewUser = (name, email, password) => {
-  
-}
 
 /***
 Routes
@@ -140,7 +99,7 @@ app.get('/u/:shortURL', (req, res) => {
 app.get('/urls', (req, res) => {
   let templateVars = { 
     user: users[req.session['user_id']],
-    urls: urlsForUser(req.session['user_id']) // => checking to see if relvant URLs match account
+    urls: urlsForUser(req.session['user_id'], urlDatabase) // => checking to see if relvant URLs match account
   };
   res.render('urls_index', templateVars);
 });
@@ -265,20 +224,20 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   const loginEmail = req.body.email
   const loginPass = req.body.password
-  const user = findUser(loginEmail);
+  const user = findUserIdFromEmail(loginEmail, users);
 
   console.log(loginEmail)
   console.log(loginPass);
+  console.log(users[user].password)
 
   if (!user) {
     res.status(403).send('Email not found.')
   } else {
-    if (!checkExistingPassword(user, loginPass)) {
+    if (!checkExistingPassword(loginPass, users[user].password)) {
       res.status(403).send('Password is wrong.')
     } else {
-      console.log(users);
       // res.session('user_id', user.id);
-      req.session['user_id'] = user.id;
+      req.session['user_id'] = user;
       res.redirect('/urls')
     }
   }
