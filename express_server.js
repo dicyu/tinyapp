@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser');
+const e = require('express');
 const PORT = 8080; // => Default Port : 8080
 
 // Middleware
@@ -48,6 +49,22 @@ function checkExistingEmail(newEmail) {
   }
 };
 
+function checkExistingPassword(newPass) {
+  for (let pass in users) {
+    let queryPass = users[pass]["password"]
+
+    if (newPass === queryPass) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+};
+
+const findUser = email => {
+  return Object.values(users).find(user => user.email === email);
+}
+
 /***
 Routes
 ***/
@@ -91,8 +108,6 @@ app.get('/urls/new', (req, res) => {
 
 app.get('/urls/:shortURL', (req, res) => {
   let templateVars = { 
-    shortURL: req.params.shortURL, 
-    longURL: urlDatabase[req.params.shortURL],
     user: users[req.cookies['user_id']]
   }
   res.render('urls_show', templateVars);
@@ -111,12 +126,6 @@ app.post('/urls/:shortURL', (req, res) => {
   const longURL = req.body.newURL
   urlDatabase[shortURL] = longURL;
   res.redirect('/urls')
-});
-
-// Login post, username cookies
-app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/urls');
 });
 
 // Logout post and deleting cookies
@@ -139,12 +148,10 @@ app.post('/register', (req, res) => {
   const newPass = req.body.password;
 
   if (newEmail === "" && newPass === "") {
-    res.status(400);
-    res.send('Please enter an email and a password.');
+    res.status(400).send('Please enter an email and a password.');
     // console.log(users);
     } else if (newEmail === "") {
-      res.status(400);
-      res.send('Please enter a email.');
+      res.status(400).send('Please enter a email.');
       // console.log(users);
     } else if (newPass === "") {
       res.send('Please enter a password.');
@@ -152,8 +159,7 @@ app.post('/register', (req, res) => {
     }
     
     if (checkExistingEmail(newEmail) === true) {
-      res.status(400);
-      res.send('Email already exists')
+      res.status(400).send('Email already exists')
       // console.log(users);
     } else {
       res.cookie('user_id', newUserID);
@@ -166,12 +172,34 @@ app.post('/register', (req, res) => {
   // console.log(users[newUserID]);
 });
 
+// Login GET and POST
 app.get('/login', (req, res) => {
   let templateVars = {
     user: users[req.cookies['user_id]']]
   }
   res.render('urls_login', templateVars)
 });
+
+app.post('/login', (req, res) => {
+  loginEmail = req.body.email
+  loginPass = req.body.password
+  const user = findUser(loginEmail);
+
+  console.log(loginEmail)
+  console.log(loginPass);
+
+  if (!checkExistingEmail(loginEmail)) {
+    res.status(403).send('Email not found.')
+  } else {
+    if (!checkExistingPassword(loginPass)) {
+      res.status(403).send('Password is wrong.')
+    } else {
+      console.log(users);
+      res.cookie('user_id', user.id);
+      res.redirect('/urls')
+    }
+  }
+  });
 
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
