@@ -12,8 +12,14 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 // Database
 const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.ca'
+  'b2xVn2': {
+    longURL: 'http://www.lighthouselabs.ca',
+    userID: '34iibk'
+  },
+  '9sm5xK': {
+    longURL: 'http://www.google.ca',
+    userID: '34iibk'
+  }
 };
 
 const users = {
@@ -61,6 +67,17 @@ const findUser = email => {
   return Object.values(users).find(user => user.email === email);
 }
 
+const userSpecificURLs = (id) => {
+  let userURLs = {};
+
+  for (const shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      userURLs[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  return userURLs;
+};
+
 /***
 Routes
 ***/
@@ -81,23 +98,30 @@ app.post('/urls', (req, res) => {
     res.status(400).send('You need to be logged in or registered to see this page.');
   } else {
     let shortURL = generateRandomString();
-    urlDatabase[shortURL] = req.body.longURL;
+    let longURL = req.body.longURL;
+    let userID = req.cookies['user_id'];
+
+    urlDatabase[shortURL] = { longURL, userID };
     res.redirect(`/urls/${shortURL}`);
   }
 });
 
 // a redirect to the actual website
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   // console.log(longURL);
-  res.redirect(longURL);
+  if (longURL) {
+    res.redirect(longURL);
+  } else {
+    console.log("working?")
+  }
 });
 
 // Get urls for the url page
 app.get('/urls', (req, res) => {
   let templateVars = { 
     user: users[req.cookies['user_id']],
-    urls: urlDatabase,
+    urls: userSpecificURLs(req.cookies['user_id']) // => checking to see if relvant URLs match account
   };
   res.render('urls_index', templateVars);
 });
@@ -117,9 +141,11 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
+  const userID = req.cookies['user_id']
+  const userURL = userSpecificURLs(userID)
   let templateVars = { 
-    user: users[req.cookies['user_id']]
-  }
+    urls: userURL, user: users[userID], shortURL: req.params.shortURL
+  };
   res.render('urls_show', templateVars);
 });
 
