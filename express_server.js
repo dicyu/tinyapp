@@ -155,19 +155,29 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
-// Delete a URL
-app.post('/urls/:shortURL/delete', (req, res) => {
-  const urlId = req.params.shortURL;
-  delete urlDatabase[urlId]
+// Update a URL
+app.post('/urls/:shortURL', (req, res) => {
+  const userID = req.cookies['user_id'];
+  const shortURL = req.params.shortURL
+  const longURL = req.body.newURL
+
+  urlDatabase[shortURL] = { longURL, userID };
   res.redirect('/urls')
 });
 
-// Update a URL
-app.post('/urls/:shortURL', (req, res) => {
+// Delete a URL
+app.post('/urls/:shortURL/delete', (req, res) => {
+  const userID = req.cookies['user_id'];
+  const userURLs = urlsForUser(userID);
   const shortURL = req.params.shortURL
-  const longURL = req.body.newURL
-  urlDatabase[shortURL] = longURL;
-  res.redirect('/urls')
+
+  // Check if user is logged in or not to be able to delete
+  if (Object.keys(userURLs).includes(shortURL)) {
+    delete urlDatabase[shortURL]
+    res.redirect('/urls')
+  } else {
+    res.status(400).send('Error.');
+  }
 });
 
 // Logout post and deleting cookies
