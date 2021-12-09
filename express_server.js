@@ -1,18 +1,16 @@
 // Dependencies
 const express = require('express');
 const app = express();
-const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const cookieSession = require('cookie-session');
 
+// Global
 const PORT = 8080; // => Default Port : 8080
 const salt = bcrypt.genSaltSync(10);
 
-
 // Middleware
 app.set('view engine', 'ejs');
-app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
@@ -27,7 +25,7 @@ const {
   generateRandomString, checkExistingEmail, checkExistingPassword, findUserIdFromEmail, urlsForUser 
 } = require('./helpers');
 
-// Database
+// Database for URLs and users
 const urlDatabase = {
   'b2xVn2': {
     longURL: 'http://www.lighthouselabs.ca',
@@ -61,18 +59,16 @@ Routes
 ***/
 
 app.get('/', (req, res) => {
-  res.send('Hello!');
+  res.redirect('/urls');
 });
 
-
-// Post new URL from form page, into database
+// Post new URL into database
 app.post('/urls', (req, res) => {
   let templateVars = { 
     user: users[req.session['user_id']]
   }
-  // console.log(req.body.longURL) // Logs the POST request to body to the console
 
-  if (!templateVars.user) { // => if user isn't logged in
+  if (!templateVars.user) { // => if user isn't logged in output this error
     res.status(400).send('You need to be logged in or registered to see this page.');
   } else {
     let shortURL = generateRandomString();
@@ -88,18 +84,17 @@ app.post('/urls', (req, res) => {
 app.get('/u/:shortURL', (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
   const longURL = urlDatabase[req.params.shortURL].longURL;
-  // console.log(longURL);
   res.redirect(longURL);
 } else {
     res.status(404).send('Tiny URL ID does not exist.')
   }
 });
 
-// Get urls for the url page
+// Get urls from the database for the url page
 app.get('/urls', (req, res) => {
   let templateVars = { 
     user: users[req.session['user_id']],
-    urls: urlsForUser(req.session['user_id'], urlDatabase) // => checking to see if relvant URLs match account
+    urls: urlsForUser(req.session['user_id'], urlDatabase) // => checking to see if relevant URLs match account
   };
   res.render('urls_index', templateVars);
 });
@@ -118,6 +113,7 @@ app.get('/urls/new', (req, res) => {
 
 });
 
+// ShortURL page
 app.get('/urls/:shortURL', (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
 
@@ -151,7 +147,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   const userURLs = urlsForUser(userID);
   const shortURL = req.params.shortURL
 
-  // Check if user is logged in or not to be able to delete
+  // Check if user is logged in or not won't be able to delete
   if (Object.keys(userURLs).includes(shortURL)) {
     delete urlDatabase[shortURL]
     res.redirect('/urls')
@@ -189,28 +185,19 @@ app.post('/register', (req, res) => {
 
   if (newEmail === "" && newPass === "") {
     res.status(400).send('Please enter an email and a password.');
-    // console.log(users);
     } else if (newEmail === "") {
       res.status(400).send('Please enter a email.');
-      // console.log(users);
     } else if (newPass === "") {
       res.send('Please enter a password.');
-      // console.log(users);
     }
     
     if (checkExistingEmail(newEmail, users) === true) {
       res.status(400).send('Email already exists')
-      // console.log(users);
     } else {
-      // res.session('user_id', newUserID);
       req.session['user_id'] = newUserID;
       res.redirect('/urls');
       users[newUserID] = { id: newUserID, email: newEmail, password: newPass }
-      // console.log(users);
     };
-
-  // console.log(users);
-  // console.log(users[newUserID]);
 });
 
 // Login GET and POST
@@ -236,7 +223,6 @@ app.post('/login', (req, res) => {
     if (!checkExistingPassword(loginPass, users[user].password)) {
       res.status(403).send('Password is wrong.')
     } else {
-      // res.session('user_id', user.id);
       req.session['user_id'] = user;
       res.redirect('/urls')
     }
@@ -245,20 +231,9 @@ app.post('/login', (req, res) => {
 
 // Logout post and deleting cookies
 app.post('/logout', (req, res) => {
-  // res.clearCookie('user_id', req.session['user_id']);
   req.session['user_id'] = null;
   res.redirect('/urls');
 });
-
-
-// Looking at json for testing
-app.get('/users.json', (req, res) => {
-  res.json(users);
-});
-
-// app.get('/hello', (req, res) => {
-//   res.send('<html><body>Hello <b>World</b></body></html>\n')
-// });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`)
