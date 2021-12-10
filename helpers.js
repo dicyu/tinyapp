@@ -1,7 +1,8 @@
 // Dependencies
 const bcrypt = require('bcryptjs');
 
-// Helper Functions
+//****Helper Functions ****/
+
 const generateRandomString = () => {
   const randomString = Math.random().toString(36).substring(2, 8);
   return randomString;
@@ -44,10 +45,31 @@ const urlsForUser = (id, urlDatabase) => {
   return userURLs;
 };
 
+const addingNewURL = (longURL, userID, database) => {
+  const dateCreated = new Date();
+  const visitCount = 0;
+  const unqiueVists = 0; 
+  const visitHistory = [];
+  const visitIDList = [];
+  const shortURL = generateRandomString();
+
+  database[shortURL] = { 
+    userID, 
+    longURL, 
+    dateCreated, 
+    visitCount, 
+    unqiueVists, 
+    visitHistory, 
+    visitIDList 
+  };
+  return shortURL;
+};
+
 module.exports = { 
   generateRandomString,
   checkExistingEmail,
   checkExistingPassword,
   findUserIdFromEmail,
-  urlsForUser
+  urlsForUser,
+  addingNewURL
 };
