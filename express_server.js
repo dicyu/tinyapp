@@ -24,22 +24,37 @@ app.use(methodOverride('_method'));
 
 // Functions
 const { 
-  generateRandomString, checkExistingEmail, checkExistingPassword, findUserIdFromEmail, urlsForUser 
+  generateRandomString, checkExistingEmail, checkExistingPassword, findUserIdFromEmail, urlsForUser, addingNewURL 
 } = require('./helpers');
 
 // Database for URLs and users
 const urlDatabase = {
   'b2xVn2': {
     longURL: 'http://www.lighthouselabs.ca',
-    userID: '34iibk'
+    userID: '34iibk',
+    dateCreated: new Date(),
+    visitCount: 0,
+    unqiueVists: 0, 
+    visitHistory: [],
+    visitIDList: []
   },
   '9sm5xK': {
     longURL: 'http://www.google.ca',
-    userID: '34iibk'
+    userID: '34iibk',
+    dateCreated: new Date(),
+    visitCount: 0,
+    unqiueVists: 0, 
+    visitHistory: [],
+    visitIDList: []
   },
   'r9mcvl': {
     longURL: 'http://www.google.ca',
-    userID: 'buq4s7'
+    dateCreated: new Date(),
+    userID: 'buq4s7',
+    visitCount: 0,
+    unqiueVists: 0, 
+    visitHistory: [],
+    visitIDList: []
   }
 };
 
@@ -73,11 +88,9 @@ app.post('/urls', (req, res) => {
   if (!templateVars.user) { // => if user isn't logged in output this error
     res.status(400).send('You need to be logged in or registered to see this page.');
   } else {
-    let shortURL = generateRandomString();
-    let longURL = req.body.longURL;
-    let userID = req.session['user_id'];
-
-    urlDatabase[shortURL] = { longURL, userID };
+    const longURL = req.body.longURL;
+    const userID = req.session['user_id'];
+    const shortURL = addingNewURL(longURL, userID, urlDatabase)
     res.redirect(`/urls/${shortURL}`);
   }
 });
@@ -123,7 +136,8 @@ app.get('/urls/:shortURL', (req, res) => {
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL].longURL,
       urlUserID: urlDatabase[req.params.shortURL].userID,
-      user: users[req.session['user_id']]
+      user: users[req.session['user_id']],
+      urls: urlDatabase
     };
     res.render('urls_show', templateVars);
   } else {
@@ -134,11 +148,18 @@ app.get('/urls/:shortURL', (req, res) => {
 
 // Update a URL
 app.put('/urls/:shortURL', (req, res) => {
-  const userID = req.session['user_id'];
   const shortURL = req.params.shortURL
   const longURL = req.body.newURL
 
-  urlDatabase[shortURL] = { longURL, userID };
+  // urlDatabase[shortURL] = { longURL, userID };
+  
+  urlDatabase[shortURL].longURL = longURL;
+  urlDatabase[shortURL].dateCreated = new Date();
+  urlDatabase[shortURL].visitCount = 0;
+  urlDatabase[shortURL].unqiueVists = 0; 
+  urlDatabase[shortURL].visitHistory = [];
+  urlDatabase[shortURL].visitIDList = [];
+
   res.redirect('/urls')
 });
 
@@ -233,5 +254,5 @@ app.post('/logout', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`)
+  console.log(`Tiny App is listening on port ${PORT}!`)
 });
