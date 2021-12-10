@@ -76,10 +76,14 @@ Routes
 ***/
 
 app.get('/', (req, res) => {
-  res.redirect('/urls');
+  if (req.session['user_id']) {
+    res.redirect('/urls')
+  } else {
+    res.redirect('/login');
+  }
 });
 
-// Post new URL into database
+// POST a new URL into the database //
 app.post('/urls', (req, res) => {
   let templateVars = { 
     user: users[req.session['user_id']]
@@ -95,13 +99,14 @@ app.post('/urls', (req, res) => {
   }
 });
 
-// a redirect to the actual website
+// GET a redirect to the actual website //
 app.get('/u/:shortURL', (req, res) => {
 
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
   const dateVisted = new Date();
   
+  // Adding visit analytics into the database //
   if (!urlDatabase[shortURL]) {
     res.status(404).send('This tiny URL does not exist.')
   } else if (!req.session['user_id']) {

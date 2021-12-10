@@ -42,7 +42,7 @@
       <tbody>
           <% for (let url in urls) { %>
             <tr>
-              <td><%= url %></td>
+              <td><a href="<%= url %>"><%= url %></a></td>
               <td><%= urls[url].longURL %></td>
               <td>
                 <form method="GET" action="/urls/<%= url %>">
@@ -56,9 +56,12 @@
               </td>
             </tr>
             <% } %>
-          <% } %>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+        <h5>
+        <small class="link-secondary" style="padding-left: 12px"><a href="/urls/new">New...</a></small>
+      </h5>
+      <% } %>
   </main>
   <div class="card-footer text-muted"></div>
   <!-- Bootstrap JS -->
