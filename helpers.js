@@ -48,7 +48,7 @@ const urlsForUser = (id, urlDatabase) => {
 const addingNewURL = (longURL, userID, database) => {
   const dateCreated = new Date();
   const visitCount = 0;
-  const unqiueVists = 0;
+  const uniqueVists = 0;
   const visitHistory = [];
   const visitIDList = [];
   const shortURL = generateRandomString();
@@ -58,7 +58,7 @@ const addingNewURL = (longURL, userID, database) => {
     longURL,
     dateCreated,
     visitCount,
-    unqiueVists,
+    uniqueVists,
     visitHistory,
     visitIDList
   };

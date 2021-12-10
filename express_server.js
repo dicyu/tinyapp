@@ -34,7 +34,7 @@ const urlDatabase = {
     userID: '34iibk',
     dateCreated: new Date(),
     visitCount: 0,
-    unqiueVists: 0, 
+    uniqueVisits: 0, 
     visitHistory: [],
     visitIDList: []
   },
@@ -43,7 +43,7 @@ const urlDatabase = {
     userID: '34iibk',
     dateCreated: new Date(),
     visitCount: 0,
-    unqiueVists: 0, 
+    uniqueVisits: 0, 
     visitHistory: [],
     visitIDList: []
   },
@@ -52,7 +52,7 @@ const urlDatabase = {
     dateCreated: new Date(),
     userID: 'buq4s7',
     visitCount: 0,
-    unqiueVists: 0, 
+    uniqueVisits: 0, 
     visitHistory: [],
     visitIDList: []
   }
@@ -75,6 +75,7 @@ const users = {
 Routes
 ***/
 
+// GET => Main page redirects
 app.get('/', (req, res) => {
   if (req.session['user_id']) {
     res.redirect('/urls')
@@ -83,7 +84,7 @@ app.get('/', (req, res) => {
   }
 });
 
-// POST a new URL into the database //
+// POST => a new URL into the database //
 app.post('/urls', (req, res) => {
   let templateVars = { 
     user: users[req.session['user_id']]
@@ -99,14 +100,14 @@ app.post('/urls', (req, res) => {
   }
 });
 
-// GET a redirect to the actual website //
+// GET => a redirect to the actual website //
 app.get('/u/:shortURL', (req, res) => {
 
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
   const dateVisted = new Date();
   
-  // Adding visit analytics into the database //
+  // Added visit analytics into the database
   if (!urlDatabase[shortURL]) {
     res.status(404).send('This tiny URL does not exist.')
   } else if (!req.session['user_id']) {
@@ -127,7 +128,7 @@ app.get('/u/:shortURL', (req, res) => {
 res.redirect(longURL);
 });
 
-// Get urls from the database for the url page
+// GET => urls from the database, display them //
 app.get('/urls', (req, res) => {
   let templateVars = { 
     user: users[req.session['user_id']],
@@ -136,7 +137,7 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
-// Get URL form page to add new URL
+// GET => URL form page to add new URLs //
 app.get('/urls/new', (req, res) => {
   let templateVars = { 
     user: users[req.session['user_id']] 
@@ -150,7 +151,7 @@ app.get('/urls/new', (req, res) => {
 
 });
 
-// ShortURL page
+// GET => shortURL page //
 app.get('/urls/:shortURL', (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
 
@@ -168,12 +169,10 @@ app.get('/urls/:shortURL', (req, res) => {
 
 });
 
-// Update a URL
+// PUT => Update a URL when logged in //
 app.put('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL
   const longURL = req.body.newURL
-
-  // urlDatabase[shortURL] = { longURL, userID };
   
   urlDatabase[shortURL].longURL = longURL;
   urlDatabase[shortURL].dateCreated = new Date();
@@ -185,13 +184,13 @@ app.put('/urls/:shortURL', (req, res) => {
   res.redirect('/urls')
 });
 
-// Delete a URL
+// DELETE => a URL //
 app.delete('/urls/:shortURL', (req, res) => {
   const userID = req.session['user_id'];
   const userURLs = urlsForUser(userID);
   const shortURL = req.params.shortURL
 
-  // Check if user is logged in or not won't be able to delete
+  // Check if user is logged in or not, won't be able to delete if not
   if (urlsForUser(userID, urlDatabase)[shortURL]) {
     delete urlDatabase[shortURL]
     res.redirect('/urls')
@@ -200,7 +199,7 @@ app.delete('/urls/:shortURL', (req, res) => {
   }
 });
 
-// Check to see if user is logged in to be able to POST
+// POST => Check to see if user is logged in, if yes, can POST //
 app.post('/urls/:id', (req, res) => {
   const userID = req.session['user_id'];
   const userURLs = urlsForUser(userID);
@@ -214,7 +213,7 @@ app.post('/urls/:id', (req, res) => {
   }
 });
 
-// Registration GET and POST
+// GET => Registration GET and POST //
 app.get('/register', (req, res) => {
   let templateVars = { 
     user: users[req.session['user_id']],
@@ -244,7 +243,7 @@ app.post('/register', (req, res) => {
     };
 });
 
-// Login GET and POST
+// GET => Login GET and POST //
 app.get('/login', (req, res) => {
   let templateVars = {
     user: users[req.session['user_id]']]
@@ -269,7 +268,7 @@ app.post('/login', (req, res) => {
   }
   });
 
-// Logout post and deleting cookies
+// POST => Logout and deleting cookies //
 app.post('/logout', (req, res) => {
   req.session['user_id'] = null;
   res.redirect('/urls');
