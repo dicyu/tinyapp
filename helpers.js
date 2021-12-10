@@ -20,10 +20,10 @@ const checkExistingEmail = (newEmail, database) => {
 };
 
 const checkExistingPassword = (key1, key2) => {
-    if (bcrypt.compareSync(key1, key2)) {
-      return true;
-    }
-    return false;
+  if (bcrypt.compareSync(key1, key2)) {
+    return true;
+  }
+  return false;
 };
 
 const findUserIdFromEmail = (email, database) => {
@@ -32,7 +32,7 @@ const findUserIdFromEmail = (email, database) => {
       return database[user].id;
     }
   }
-}
+};
 
 const urlsForUser = (id, urlDatabase) => {
   let userURLs = {};
@@ -48,24 +48,24 @@ const urlsForUser = (id, urlDatabase) => {
 const addingNewURL = (longURL, userID, database) => {
   const dateCreated = new Date();
   const visitCount = 0;
-  const unqiueVists = 0; 
+  const unqiueVists = 0;
   const visitHistory = [];
   const visitIDList = [];
   const shortURL = generateRandomString();
 
-  database[shortURL] = { 
-    userID, 
-    longURL, 
-    dateCreated, 
-    visitCount, 
-    unqiueVists, 
-    visitHistory, 
-    visitIDList 
+  database[shortURL] = {
+    userID,
+    longURL,
+    dateCreated,
+    visitCount,
+    unqiueVists,
+    visitHistory,
+    visitIDList
   };
   return shortURL;
 };
 
-module.exports = { 
+module.exports = {
   generateRandomString,
   checkExistingEmail,
   checkExistingPassword,
