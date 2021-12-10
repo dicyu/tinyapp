@@ -103,7 +103,7 @@ app.get('/u/:shortURL', (req, res) => {
   const dateVisted = new Date();
   
   if (!urlDatabase[shortURL]) {
-    res.status(404).send('Tiny URL ID does not exist.')
+    res.status(404).send('This tiny URL does not exist.')
   } else if (!req.session['user_id']) {
     req.session['user_id'] = generateRandomString();
     urlDatabase[shortURL].visitHistory.push([dateVisted, req.session['user_id']]);
@@ -191,7 +191,7 @@ app.delete('/urls/:shortURL', (req, res) => {
     delete urlDatabase[shortURL]
     res.redirect('/urls')
   } else {
-    res.status(401).send('Error.');
+    res.status(401).send(`You're not logged in, you can't delete this.`);
   }
 });
 
@@ -205,7 +205,7 @@ app.post('/urls/:id', (req, res) => {
     urlDatabase[shortURL] = { longURL, userID }
     res.redirect('/urls');
   } else {
-    res.status(401).send('Error');
+    res.status(401).send(`You're not logged in, you can't create a tiny URL.`);
   }
 });
 
@@ -231,7 +231,7 @@ app.post('/register', (req, res) => {
     }
     
     if (checkExistingEmail(newEmail, users) === true) {
-      res.status(400).send('Email already exists')
+      res.status(400).send('This email already exists')
     } else {
       req.session['user_id'] = newUserID;
       res.redirect('/urls');
@@ -253,13 +253,13 @@ app.post('/login', (req, res) => {
   const user = findUserIdFromEmail(loginEmail, users);
 
   if (!user) {
-    res.status(403).send('Email not found.')
+    res.status(403).send('This email is not found.')
   } else {
     if (checkExistingPassword(loginPass, users[user].password)) {
       req.session['user_id'] = user;
       res.redirect('/urls')
     } else {
-      res.status(403).send('Password is wrong.')
+      res.status(403).send('This password is wrong.')
     }
   }
   });
