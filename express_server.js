@@ -97,12 +97,29 @@ app.post('/urls', (req, res) => {
 
 // a redirect to the actual website
 app.get('/u/:shortURL', (req, res) => {
-  if (urlDatabase[req.params.shortURL]) {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
-} else {
+
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[shortURL].longURL;
+  const dateVisted = new Date();
+  
+  if (!urlDatabase[shortURL]) {
     res.status(404).send('Tiny URL ID does not exist.')
+  } else if (!req.session['user_id']) {
+    req.session['user_id'] = generateRandomString();
+    urlDatabase[shortURL].visitHistory.push([dateVisted, req.session['user_id']]);
+    urlDatabase[shortURL].visitCount++;
+    urlDatabase[shortURL].visitIDList.push(req.session['user_id']);
+    urlDatabase[shortURL].uniqueVisits++;
+  } else {
+    const visitID = urlDatabase[shortURL].visitIDList;
+    urlDatabase[shortURL].visitHistory.push([dateVisted, req.session['user_id']]);
+    urlDatabase[shortURL].visitCount++;
+    if (!visitID.includes(req.session['user_id'])) {
+      visitID.push(req.session['user_id']);
+      urlDatabase[shortURL].uniqueVisits++;
   }
+}
+res.redirect(longURL);
 });
 
 // Get urls from the database for the url page
