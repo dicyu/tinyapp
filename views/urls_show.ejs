@@ -10,8 +10,7 @@
 
 <body>
   <main style="margin: 1em;">
-
-  <% if (!user) { %>
+    <% if (!user) { %>
           <div class="alert alert-danger" role="alert">
             <h5 class="alert-heading">Well, looks like we have a issue here...</h5>
             <p>This link doesn't exisit in your account, if you think it does, maybe you have to login!
@@ -32,11 +31,11 @@
       <p>Looks like this link is not part of your tiny link library!</p>
     </div>
   <% } else { %>
+    <div class="card text-center">
+      <div class="card-header"></div>
+      <div class="card-body">
 
-  <div class="card text-center">
-    <div class="card-header"></div>
-    <div class="card-body">
-      <h5 class="card-title">TinyURL for: <%= longURL %></h5>
+      <h5 class="card-title">TinyURL for: <%= urls[shortURL].longURL %></h5>
       <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
 
       <p class="card-text">Date created: <%= urls[shortURL].dateCreated.toLocaleString() %> <%= urls[shortURL].dateCreated.toLocaleTimeString() %></p>
@@ -51,7 +50,7 @@
       <form class="form-inline justify-content-center" action="/urls/<%= shortURL %>?_method=PUT" method="POST">
         <div class="form-group mb-2">
           <label for="newURL">New URL:</label>
-          <input class="form-control " type="text" name="newURL" placeholder="http://" value="<%= longURL %>" style="width: 300px; margin: 1em">
+          <input class="form-control " type="text" name="newURL" placeholder="http://" value="<%= urls[shortURL].longURL %>" style="width: 300px; margin: 1em">
           <button type="submit" class="btn btn-primary">Submit</button>
 
         </div>
@@ -74,9 +73,8 @@
           </tr>
         <% } %>
 
-  <% } %>
   </main>
-  
+  <% } %>
     <div class="card-footer text-muted"></div>
   </div>
   <!-- Bootstrap JS -->
