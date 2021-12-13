@@ -114,18 +114,20 @@ app.get('/urls/new', (req, res) => {
 
 // GET => shortURL page //
 app.get('/urls/:shortURL', (req, res) => {
-  if (urlDatabase[req.params.shortURL]) {
-
-    const templateVars = {
-      shortURL: req.params.shortURL,
-      urlUserID: urlDatabase[req.params.shortURL].userID,
-      user: users[req.session['user_id']],
-      urls: urlDatabase
-    };
-
+  if (!urlDatabase[req.params.shortURL]) {
+    res.status(404).send('Looks like this TinyURL does not exist!')
+  }
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    urlUserID: urlDatabase[req.params.shortURL].userID,
+    user: users[req.session['user_id']],
+    urls: urlDatabase
+  };
+  if (req.session['user_id'] === templateVars.urlUserID) {
     res.render('urls_show', templateVars);
   } else {
-    res.status(404).send('Looks like this TinyURL does not exist!')
+    res.status(401);
+    res.render('urls_show', templateVars);
   }
 });
 
