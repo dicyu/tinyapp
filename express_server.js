@@ -84,10 +84,10 @@ app.get('/u/:shortURL', (req, res) => {
     }
   }
   const longURL = urlDatabase[shortURL].longURL;
-  if (longURL.startsWith('http://')) {
+  if (longURL) {
     res.redirect(longURL);
   } else {
-    res.redirect(`http://${longURL}`);
+    res.status(404).send('This TinyURL does not exist');
   }
 });
 
